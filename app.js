@@ -1,7 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
-const psApps = require('./psApps')
-const cors = require('cors')
+const psApps = require('./psApps');
+const cors = require('cors');
 
 const app = express();
 
@@ -12,32 +12,38 @@ app.get('/apps', (req, res) => {
   const { sort = '', genres = '' } = req.query;
 
   let results = psApps
-    .filter(psApp =>
-      psApp
-        .genres
-        .match(/genres/g) // not sure why this doesn't work 
+    .filter(App =>
+      App
+        .Genres
+        .toLowerCase()
+        .includes(genres)
     )
 
-  res.json(results)
-})
+  if (sort === 'Rating' || sort === 'App') {
+    results = sortArray(sort, results)
+  }
 
-// below commented out because it crashes the app
-//if (sort) {
-// if (![rating, app].includes(sort)) {
-//   return res
-//   .status(400)
-//     .send('Sort mus be either rating or app')
-// }
-//}
+  res.json(results);
+});
 
-/*if (sort) {
-  results.sort((a, b) => {
-    return a[sort] > b[sort] ? 1 : a[sort] < b[sort] ? -1 : 0;
-  })
+function sortArray(key, results) {
+  for (let i = 0; i < results.length - 1; i++) {
+    for (let j = i + 1; j < results.length; j++) {
+      if (results[i][key] < results[j][key]) {
+        let aux = results[i];
+        results[i] = results[j];
+        results[j] = aux;
+      }
+    }
+  }
+  return results
 }
 
-*/
+module.exports = app;
 
-app.listen(8000, () => {
-  console.log('Server started on PORT 8000');
-});
+
+
+
+
+
+
